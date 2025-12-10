@@ -1,7 +1,11 @@
+import Login from "./login/page";
+import Signup from "./signup/page";
+
 export default function Home() {
   return (
-    <div>
-      <h1>Welcome Home</h1>
-    </div>
+    <>
+    <Signup />
+    <Login />
+    </>
   );
 }
