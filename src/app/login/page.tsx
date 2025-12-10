@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { User, Lock, Sun,Moon } from 'lucide-react';
+import Link from 'next/link';
 const Login = () => {
     const [isDark, setIsDark] = useState(true)
 
@@ -97,9 +98,9 @@ const Login = () => {
           <div className="text-center mt-6">
             <p className={`text-sm transition-colors ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>
               Don't have an account?{' '}
-              <a href="#" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+              <Link href="/signup"  className="text-purple-400 hover:text-purple-300 font-medium transition-colors" >
                 Sign Up
-              </a>
+              </Link>
             </p>
           </div>
 

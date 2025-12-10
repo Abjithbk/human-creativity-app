@@ -1,11 +1,6 @@
-import Login from "./login/page";
-import Signup from "./signup/page";
-
+import { redirect } from "next/navigation";
 export default function Home() {
   return (
-    <>
-    <Signup />
-    <Login />
-    </>
+    redirect("/Home")
   );
 }
