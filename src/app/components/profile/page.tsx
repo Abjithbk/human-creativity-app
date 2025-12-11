@@ -48,7 +48,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white dark:bg-black p-10">
+    <div className="min-h-screen w-full bg-white dark:bg-black transition-colors duration-300 overflow-x-hidden ">
       <div
         className="
         w-full px-4
