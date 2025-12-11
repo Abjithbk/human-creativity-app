@@ -5,11 +5,15 @@ import {
   Search, Plus, MoreHorizontal, ShieldCheck, Sun, Moon,
   Heart, MessageCircle, Share2, Bookmark 
 } from 'lucide-react';
+import Categories  from '../components/categories/page';
+import Notifications  from '../components/notifications/page';
+import Setting from '../components/settings/page';
 
 interface NavItems {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
+  onClick?:()=>void
 }
 
 interface StoryItems {
@@ -28,8 +32,8 @@ interface TrendingUser {
   tag: string;
 }
 
-const NavItem = ({ icon, label, active }: NavItems) => (
-  <div className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group 
+const NavItem = ({ icon, label, active, onClick }: NavItems) => (
+  <div onClick={onClick} className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group 
     ${active 
       ? 'bg-zinc-100 dark:bg-zinc-900 text-purple-600 dark:text-purple-400 font-semibold' 
       : 'text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900/50'
@@ -93,6 +97,7 @@ const TrendingUser = ({ name, tag }: TrendingUser) => (
 
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
+  const [activeTab, setActiveTab] = useState('Home');
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -114,7 +119,7 @@ export default function Dashboard() {
       
       <aside className="w-64 flex flex-col justify-between p-6 border-r border-zinc-200 dark:border-zinc-900 h-screen sticky top-0 transition-colors duration-300">
         <div>
-          <div className="flex items-center gap-3 mb-10 cursor-pointer">
+          <div onClick={() => setActiveTab('Home')} className="flex items-center gap-3 mb-10 cursor-pointer">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-600 flex items-center justify-center">
               <div className="w-3 h-3 bg-white rounded-full"></div>
             </div>
@@ -124,13 +129,20 @@ export default function Dashboard() {
           </div>
           
           <nav className="space-y-2">
-            <NavItem icon={<Home size={20} />} label="Home" active />
-            <NavItem icon={<Compass size={20} />} label="Explore" />
-            <NavItem icon={<PlayCircle size={20} />} label="Reels" />
-            <NavItem icon={<LayoutGrid size={20} />} label="Categories" />
-            <NavItem icon={<Bell size={20} />} label="Notifications" />
-            <NavItem icon={<User size={20} />} label="Profile" />
-            <NavItem icon={<Settings size={20} />} label="Settings" />
+            <NavItem  icon={<Home size={20} />} label="Home" active={activeTab === 'Home'} 
+              onClick={() => setActiveTab('Home')} />
+            <NavItem icon={<Compass size={20} />} label="Explore" active={activeTab === 'Explore'} 
+              onClick={() => setActiveTab('Explore')}/>
+            <NavItem icon={<PlayCircle size={20} />} label="Reels" active={activeTab === 'Reels'} 
+              onClick={() => setActiveTab('Reels')}/>
+            <NavItem icon={<LayoutGrid size={20} />} label="Categories" active={activeTab === 'Categories'} 
+              onClick={() => setActiveTab('Categories')}/>
+            <NavItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'Notifications'} 
+              onClick={() => setActiveTab('Notifications')} />
+            <NavItem icon={<User size={20} />} label="Profile" active={activeTab === 'Profile'} 
+              onClick={() => setActiveTab('Profile')}/>
+            <NavItem icon={<Settings size={20} />} label="Settings" active={activeTab === 'Settings'} 
+              onClick={() => setActiveTab('Settings')}/>
           </nav>
         </div>
 
@@ -151,64 +163,83 @@ export default function Dashboard() {
 
       </aside>
       <main className="flex-1 overflow-y-auto px-10 py-8 h-screen scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-        <div className="flex gap-6 mb-8 overflow-x-auto pb-4 scrollbar-hide">
-          <StoryItem isUser name="Your Story" />
-          <StoryItem name="anna_art" hasBorder />
-          <StoryItem name="design_daily" hasBorder />
-          <StoryItem name="music_flow" hasBorder />
-          <StoryItem name="pixel_jim" hasBorder />
-        </div>
+       {activeTab === 'Home' && (
+          <>
+            <div className="flex gap-6 mb-8 overflow-x-auto pb-4 scrollbar-hide">
+              <StoryItem isUser name="Your Story" />
+              <StoryItem name="anna_art" hasBorder />
+              <StoryItem name="design_daily" hasBorder />
+              <StoryItem name="music_flow" hasBorder />
+              <StoryItem name="pixel_jim" hasBorder />
+            </div>
 
-        <div className="flex gap-3 mb-8">
-          <Filter label="All" active />
-          <Filter label="Art" />
-          <Filter label="Photo" />
-          <Filter label="Music" />
-          <Filter label="Crafts" />
-        </div>
+            <div className="flex gap-3 mb-8">
+              <Filter label="All" active />
+              <Filter label="Art" />
+              <Filter label="Photo" />
+              <Filter label="Music" />
+              <Filter label="Crafts" />
+            </div>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm dark:shadow-none">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 border border-purple-500" />
-              <div>
-                <h3 className="font-bold text-sm text-zinc-800 dark:text-zinc-100">elara_studios</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Art</p>
+            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm dark:shadow-none">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 border border-purple-500" />
+                  <div>
+                    <h3 className="font-bold text-sm text-zinc-800 dark:text-zinc-100">elara_studios</h3>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Art</p>
+                  </div>
+                </div>
+                <button className="text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white transition">
+                  <MoreHorizontal size={20} />
+                </button>
+              </div>
+              <div className="w-full aspect-video rounded-2xl bg-gradient-to-br from-orange-400 via-pink-500 to-purple-800 relative overflow-hidden group cursor-pointer shadow-inner">
+                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 z-10 shadow-lg">
+                  <ShieldCheck size={14} className="text-cyan-400" />
+                  <span className="text-[10px] font-bold tracking-wider text-white">HUMAN</span>
+                </div>
+                
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition duration-500"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-cyan-600/60 to-transparent transform skew-y-6 translate-y-12 opacity-80 mix-blend-overlay"></div>
+              </div>    
+              
+              <div className="mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                    <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors group">
+                        <Heart size={24} className="group-hover:fill-current transition-all" />
+                        <span className="text-sm font-semibold">4.2k</span>
+                    </button>
+                    <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors group">
+                        <MessageCircle size={24} className="group-hover:fill-current transition-all" />
+                        <span className="text-sm font-semibold">86</span>
+                    </button>
+                    <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
+                        <Share2 size={24} />
+                    </button>
+                </div>
+                <button className="text-zinc-500 dark:text-zinc-400 hover:text-purple-500 dark:hover:text-purple-400 transition-colors">
+                    <Bookmark size={24} />
+                </button>
               </div>
             </div>
-            <button className="text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white transition">
-              <MoreHorizontal size={20} />
-            </button>
-          </div>
-          <div className="w-full aspect-video rounded-2xl bg-gradient-to-br from-orange-400 via-pink-500 to-purple-800 relative overflow-hidden group cursor-pointer shadow-inner">
-            <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 z-10 shadow-lg">
-              <ShieldCheck size={14} className="text-cyan-400" />
-              <span className="text-[10px] font-bold tracking-wider text-white">HUMAN</span>
-            </div>
-            
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition duration-500"></div>
-            <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-cyan-600/60 to-transparent transform skew-y-6 translate-y-12 opacity-80 mix-blend-overlay"></div>
-          </div>    
-          
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-6">
-                <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors group">
-                    <Heart size={24} className="group-hover:fill-current transition-all" />
-                    <span className="text-sm font-semibold">4.2k</span>
-                </button>
-                <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors group">
-                    <MessageCircle size={24} className="group-hover:fill-current transition-all" />
-                    <span className="text-sm font-semibold">86</span>
-                </button>
-                <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
-                    <Share2 size={24} />
-                </button>
-            </div>
-            <button className="text-zinc-500 dark:text-zinc-400 hover:text-purple-500 dark:hover:text-purple-400 transition-colors">
-                <Bookmark size={24} />
-            </button>
-          </div>
-        </div>
+          </>
+        )}
+
+
+
+        {activeTab === 'Categories' &&  (
+          <Categories  />
+        )}
+
+
+        {activeTab === 'Notifications' &&(
+          <Notifications/>
+        )}
+
+         {activeTab === 'Settings' &&(
+          <Setting/>
+        )}
       </main>
 
       <aside className="w-80 p-8 border-l border-zinc-200 dark:border-zinc-900 hidden xl:block h-screen sticky top-0 transition-colors duration-300">
