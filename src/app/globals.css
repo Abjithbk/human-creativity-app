@@ -21,6 +21,15 @@
     --foreground: #ededed;
   }
 }
+/* For Chrome, Safari, Edge */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+.no-scrollbar {
+  scrollbar-width: none;
+}
 
 body {
   background: var(--background);

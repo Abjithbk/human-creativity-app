@@ -8,7 +8,9 @@ import {
 import Categories  from '../components/categories/page';
 import Notifications  from '../components/notifications/page';
 import Setting from '../components/settings/page';
-
+import Profile from '../components/profile/page';
+import Explore from '../components/explore/page';
+import Reels from '../components/reels/page';
 interface NavItems {
   icon: React.ReactNode;
   label: string;
@@ -115,7 +117,7 @@ export default function Dashboard() {
   },[darkMode]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-sans flex overflow-hidden selection:bg-purple-500 selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-sans flex overflow-hidden selection:bg-purple-500 selection:text-white transition-colors duration-300 ">
       
       <aside className="w-64 flex flex-col justify-between p-6 border-r border-zinc-200 dark:border-zinc-900 h-screen sticky top-0 transition-colors duration-300">
         <div>
@@ -162,10 +164,10 @@ export default function Dashboard() {
 
 
       </aside>
-      <main className="flex-1 overflow-y-auto px-10 py-8 h-screen scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+      <main className="flex-1 overflow-y-auto px-10 py-8 h-screen no-scrollbar">
        {activeTab === 'Home' && (
           <>
-            <div className="flex gap-6 mb-8 overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-6 mb-8 overflow-x-auto pb-4 no-scrollbar ">
               <StoryItem isUser name="Your Story" />
               <StoryItem name="anna_art" hasBorder />
               <StoryItem name="design_daily" hasBorder />
@@ -240,6 +242,21 @@ export default function Dashboard() {
          {activeTab === 'Settings' &&(
           <Setting/>
         )}
+        {
+          activeTab == 'Profile' && (
+            <Profile />
+          )
+        }
+        {
+          activeTab == 'Explore' && (
+            <Explore />
+          )
+        }
+        {
+          activeTab == 'Reels' && (
+            <Reels />
+          )
+        }
       </main>
 
       <aside className="w-80 p-8 border-l border-zinc-200 dark:border-zinc-900 hidden xl:block h-screen sticky top-0 transition-colors duration-300">
