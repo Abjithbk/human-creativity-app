@@ -28,7 +28,7 @@ export default function PostCard({ post }: { post: any }) {
       <div className="w-full aspect-video rounded-2xl bg-zinc-800 relative overflow-hidden group cursor-pointer shadow-inner">
         <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
         
-        {/* Verification Badge (Static for now) */}
+
         <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 z-10 shadow-lg">
           <ShieldCheck size={14} className="text-cyan-400" />
           <span className="text-[10px] font-bold tracking-wider text-white">HUMAN</span>
@@ -38,7 +38,7 @@ export default function PostCard({ post }: { post: any }) {
  
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
-            {/* Like Button */}
+
             <button 
               onClick={() => { setLiked(!liked); setLikeCount(liked ? likeCount - 1 : likeCount + 1); }}
               className={`flex items-center gap-2 transition-colors group ${liked ? 'text-pink-500' : 'text-zinc-500 dark:text-zinc-400 hover:text-pink-500'}`}
@@ -47,13 +47,13 @@ export default function PostCard({ post }: { post: any }) {
                 <span className="text-sm font-semibold">{likeCount}</span>
             </button>
 
-            {/* Comment Button */}
+        
             <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors group">
                 <MessageCircle size={24} className="group-hover:fill-current transition-all" />
                 <span className="text-sm font-semibold">0</span>
             </button>
 
-            {/* Share Button */}
+
             <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
                 <Share2 size={24} />
             </button>
@@ -68,7 +68,7 @@ export default function PostCard({ post }: { post: any }) {
         </button>
       </div>
 
-      {/* Content / Caption */}
+
       <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">{post.content}</p>
     </div>
   );

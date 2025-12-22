@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
-import { Camera, Shield, Share2, User } from "lucide-react";
-
+import React, { useState ,useEffect} from "react";
+import { Camera, Shield, Share2, User, LogOut } from "lucide-react";
+import axios from "axios";
 interface UserProfile {
   name: string;
   handle: string;
@@ -12,15 +12,11 @@ interface UserProfile {
   profileImageUrl: string;
 }
 
-const mockUser: UserProfile = {
-  name: "Elena R.",
-  handle: "@creative_soul",
-  bio: "Preserving the human touch.\nWatercolors & Ink.",
-  creations: 42,
-  followers: "4.2k",
-  following: 150,
-  profileImageUrl: "https://placehold.co/100x100/1e293b/ffffff?text=ER",
-};
+interface Post {
+  id: number;
+  image_url: string;
+  title?: string;
+}
 
 type Tab = "Creations" | "About";
 
