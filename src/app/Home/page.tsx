@@ -11,6 +11,11 @@ import Setting from '../components/settings/page';
 import Profile from '../components/profile/page';
 import Explore from '../components/explore/page';
 import Reels from '../components/reels/page';
+import axios from 'axios';
+import Link  from 'next/link'
+import PostCard from '../components/postcard/page';
+
+
 interface NavItems {
   icon: React.ReactNode;
   label: string;
@@ -100,7 +105,8 @@ const TrendingUser = ({ name, tag }: TrendingUser) => (
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState('Home');
-  
+  const [posts, setPosts] = useState<any[]>([]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -115,6 +121,26 @@ export default function Dashboard() {
       document.documentElement.classList.remove('dark');
     }
   },[darkMode]);
+
+
+  useEffect(()=>{
+    const fetchposts = async() =>{
+      try{
+      const res = await axios.get("http://localhost:8000/posts")
+      setPosts(res.data)
+      }
+      catch(err){
+        console.error("Error fetching posts",err)
+      }
+
+    }
+  
+  if(activeTab==='Home')
+  {
+fetchposts()
+  }}
+,[activeTab])
+    
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-sans flex overflow-hidden selection:bg-purple-500 selection:text-white transition-colors duration-300 ">
@@ -149,9 +175,11 @@ export default function Dashboard() {
         </div>
 
         <div className="flex flex-col items-center gap-4">
+        <Link href='/create' className='w-full'>
   <button className="flex-1 w-full py-3 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-semibold shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 hover:opacity-90 transition transform active:scale-95">
     <Plus size={20} /> Create
   </button>
+  </Link>
 
   <button 
     onClick={() => setDarkMode(!darkMode)}
@@ -183,48 +211,15 @@ export default function Dashboard() {
               <Filter label="Crafts" />
             </div>
 
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-sm dark:shadow-none">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 border border-purple-500" />
-                  <div>
-                    <h3 className="font-bold text-sm text-zinc-800 dark:text-zinc-100">elara_studios</h3>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Art</p>
-                  </div>
-                </div>
-                <button className="text-zinc-400 dark:text-zinc-500 hover:text-black dark:hover:text-white transition">
-                  <MoreHorizontal size={20} />
-                </button>
-              </div>
-              <div className="w-full aspect-video rounded-2xl bg-gradient-to-br from-orange-400 via-pink-500 to-purple-800 relative overflow-hidden group cursor-pointer shadow-inner">
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 z-10 shadow-lg">
-                  <ShieldCheck size={14} className="text-cyan-400" />
-                  <span className="text-[10px] font-bold tracking-wider text-white">HUMAN</span>
-                </div>
-                
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition duration-500"></div>
-                <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-cyan-600/60 to-transparent transform skew-y-6 translate-y-12 opacity-80 mix-blend-overlay"></div>
-              </div>    
-              
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                    <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors group">
-                        <Heart size={24} className="group-hover:fill-current transition-all" />
-                        <span className="text-sm font-semibold">4.2k</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors group">
-                        <MessageCircle size={24} className="group-hover:fill-current transition-all" />
-                        <span className="text-sm font-semibold">86</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
-                        <Share2 size={24} />
-                    </button>
-                </div>
-                <button className="text-zinc-500 dark:text-zinc-400 hover:text-purple-500 dark:hover:text-purple-400 transition-colors">
-                    <Bookmark size={24} />
-                </button>
-              </div>
-            </div>
+<div className="space-y-6">
+  {posts.length === 0 ? (
+    <div className="text-center text-gray-500">No posts yet. Be the first to Upload one!</div>
+  ) : (
+    posts.map((post) => (
+      <PostCard key={post.id} post={post} />
+    ))
+  )}
+</div>
           </>
         )}
 
