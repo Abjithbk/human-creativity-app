@@ -9,7 +9,6 @@ interface UserProfile {
 }
 
 
-
 type Tab = "Creations" | "About";
 
 const StatItem: React.FC<{ value: string | number; label: string }> = ({
