@@ -1,22 +1,13 @@
 "use client";
-import React, { useState ,useEffect} from "react";
-import { Camera, Shield, Share2, User, LogOut } from "lucide-react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Camera, Shield, Share2, User } from "lucide-react";
+import api from "@/app/lib/axios";
 interface UserProfile {
-  name: string;
-  handle: string;
-  bio: string;
+  username: string;
   creations: number;
-  followers: string;
-  following: number;
-  profileImageUrl: string;
+  post:[]
 }
 
-interface Post {
-  id: number;
-  image_url: string;
-  title?: string;
-}
 
 type Tab = "Creations" | "About";
 
@@ -34,7 +25,27 @@ const StatItem: React.FC<{ value: string | number; label: string }> = ({
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>("Creations");
+  const [userProfile,setUserProfile] = useState<UserProfile | null>(null)
 
+  useEffect(()=> {
+    const getProfile = async () => {
+      try {
+
+        const token = localStorage.getItem("token")
+        const res = await api.get("/profile/",{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        });
+        setUserProfile(res.data)
+      }
+      catch(error:any) {
+        console.log(error.response?.data)
+      }
+    }
+    getProfile()
+
+  },[])
   const profileRingStyle: React.CSSProperties = {
     padding: "4px",
     borderRadius: "50%",
@@ -54,8 +65,7 @@ const Profile: React.FC = () => {
         <div className="flex flex-col items-center mb-10">
           <div style={profileRingStyle} className="mb-4 relative">
             <img
-              src={mockUser.profileImageUrl}
-              alt={`${mockUser.name}'s profile`}
+              
               className="w-28 h-28 object-cover rounded-full bg-gray-800 border-2 border-black"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -71,24 +81,24 @@ const Profile: React.FC = () => {
 
           <div className="flex items-center space-x-2 mb-1">
             <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
-              {mockUser.name}
+              {userProfile?.username}
             </h1>
             <Shield size={20} className="text-indigo-400" />
           </div>
 
           <p className="text-lg font-medium text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500 mb-4">
-            {mockUser.handle}
+            handle
           </p>
 
           <p className="text-center text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed mb-6 max-w-xs">
-            {mockUser.bio}
+            bio
           </p>
 
           {/* Stats Section */}
           <div className="flex items-center justify-center gap-12 w-full mb-8 py-4 border-y border-gray-200 dark:border-gray-800 bg-gray-50/40 dark:bg-transparent">
-            <StatItem value={mockUser.creations} label="Creations" />
-            <StatItem value={mockUser.followers} label="Followers" />
-            <StatItem value={mockUser.following} label="Following" />
+            <StatItem value={userProfile?.post?.length ?? 0} label="Creations" />
+            <StatItem value="90" label="Followers" />
+            <StatItem value="70" label="Following" />
           </div>
 
           {/* Buttons */}
