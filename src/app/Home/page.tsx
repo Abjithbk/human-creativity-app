@@ -2,31 +2,33 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Home, Compass, PlayCircle, LayoutGrid, Bell, User, Settings, 
-  Search, Plus, MoreHorizontal, ShieldCheck, Sun, Moon,
-  Heart, MessageCircle, Share2, Bookmark 
+  Search, Plus, ShieldCheck, Sun, Moon 
 } from 'lucide-react';
-import Categories  from '../components/categories/page';
-import Notifications  from '../components/notifications/page';
+import Categories from '../components/categories/page';
+import Notifications from '../components/notifications/page';
 import Setting from '../components/settings/page';
 import Profile from '../components/profile/page';
 import Explore from '../components/explore/page';
 import Reels from '../components/reels/page';
-import axios from 'axios';
-import Link  from 'next/link'
 import PostCard from '../components/postcard/page';
-
+import StoryViewer from '../components/stories/page'; 
+import axios from 'axios';
+import Link from 'next/link';
 
 interface NavItems {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
-  onClick?:()=>void
+  onClick?: () => void
 }
 
 interface StoryItems {
   isUser?: boolean;
   name: string;
   hasBorder?: boolean;
+  isViewed?: boolean; 
+  image?: string; 
+  onClick?: () => void;
 }
 
 interface Filters {
@@ -52,27 +54,46 @@ const NavItem = ({ icon, label, active, onClick }: NavItems) => (
   </div>
 );
 
-const StoryItem = ({ isUser, name, hasBorder }: StoryItems) => (
-  <div className="flex flex-col items-center gap-2 min-w-[72px] cursor-pointer group">
-    <div className={`w-[70px] h-[70px] rounded-full p-[3px] transition-transform duration-300 group-hover:scale-105 
-      ${hasBorder ? 'bg-gradient-to-tr from-cyan-400 to-purple-600' : ''} 
-      ${isUser 
-        ? 'border border-dashed border-zinc-400 dark:border-zinc-700 flex items-center justify-center hover:border-zinc-500' 
-        : ''
-      }`}>
-      {isUser ? (
-        <div className="w-full h-full rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-          <Plus size={24} className="text-purple-500" />
-        </div>
-      ) : (
-        <div className="w-full h-full rounded-full bg-zinc-200 dark:bg-zinc-800 border-4 border-white dark:border-black" />
-      )}
+const StoryItem = ({ isUser, name, hasBorder, isViewed, image, onClick }: StoryItems) => {
+  const isVideo = image?.includes(".mp4") || image?.includes(".webm") || image?.includes("/video/");
+
+  return (
+    <div onClick={onClick} className="flex flex-col items-center gap-2 min-w-[72px] cursor-pointer group">
+      <div className={`w-[70px] h-[70px] rounded-full p-[3px] transition-transform duration-300 group-hover:scale-105 
+        ${hasBorder && !isViewed ? 'bg-gradient-to-tr from-cyan-400 via-white-400 to-purple-600' : ''} 
+        ${hasBorder && isViewed ? 'bg-zinc-300 dark:bg-zinc-700' : ''}
+        ${isUser 
+          ? 'border border-dashed border-zinc-400 dark:border-zinc-700 flex items-center justify-center hover:border-zinc-500' 
+          : ''
+        }`}>
+        {isUser ? (
+          <div className="w-full h-full rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+            <Plus size={24} className="text-purple-500" />
+          </div>
+        ) : (
+          <div className="w-full h-full rounded-full bg-zinc-200 dark:bg-zinc-800 border-4 border-white dark:border-black overflow-hidden relative">
+            {image ? (
+              isVideo ? (
+                <video 
+                  src={image} 
+                  className="w-full h-full object-cover" 
+                  muted 
+                />
+              ) : (
+                <img src={image} alt={name} className="w-full h-full object-cover" />
+              )
+            ) : (
+              <div className="w-full h-full bg-zinc-300 dark:bg-zinc-700" />
+            )}
+          </div>
+        )}
+      </div>
+      <span className="text-xs text-zinc-600 dark:text-zinc-400 truncate w-16 text-center group-hover:text-black dark:group-hover:text-white transition-colors">
+        {name}
+      </span>
     </div>
-    <span className="text-xs text-zinc-600 dark:text-zinc-400 truncate w-16 text-center group-hover:text-black dark:group-hover:text-white transition-colors">
-      {name}
-    </span>
-  </div>
-);
+  );
+};
 
 const Filter = ({ label, active }: Filters) => (
   <button className={`px-6 py-1.5 rounded-full text-sm font-medium transition-all duration-300 transform hover:-translate-y-0.5 
@@ -101,18 +122,26 @@ const TrendingUser = ({ name, tag }: TrendingUser) => (
   </div>
 );
 
-
 export default function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [activeTab, setActiveTab] = useState('Home');
   const [posts, setPosts] = useState<any[]>([]);
+  const [stories, setStories] = useState<any[]>([]);
+  const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
+  const [viewedUsers, setViewedUsers] = useState<number[]>([]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setDarkMode(isSystemDark);
+      
+      // 4. NEW: Load viewed status from LocalStorage
+      const savedViews = localStorage.getItem('viewedStories');
+      if (savedViews) {
+        setViewedUsers(JSON.parse(savedViews));
+      }
     } 
-  },[]);
+  }, []);
 
   useEffect(() => {
     if (darkMode) {
@@ -120,27 +149,47 @@ export default function Dashboard() {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  },[darkMode]);
+  }, [darkMode]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const postsRes = await axios.get("http://localhost:8000/posts");
+        setPosts(postsRes.data);
 
-  useEffect(()=>{
-    const fetchposts = async() =>{
-      try{
-      const res = await axios.get("http://localhost:8000/posts")
-      setPosts(res.data)
+        const storiesRes = await axios.get("http://localhost:8000/posts/stories");
+        setStories(storiesRes.data);
+      } catch (err) {
+        console.error("Error fetching data", err);
       }
-      catch(err){
-        console.error("Error fetching posts",err)
-      }
+    };
 
+    if (activeTab === 'Home') {
+      fetchData();
     }
-  
-  if(activeTab==='Home')
-  {
-fetchposts()
-  }}
-,[activeTab])
+  }, [activeTab]);
+
+  const handleStoryClick = (index: number, userId: number) => {
+    setSelectedStoryIndex(index);
     
+
+    if (!viewedUsers.includes(userId)) {
+      const newViewed = [...viewedUsers, userId];
+      setViewedUsers(newViewed);
+      localStorage.setItem('viewedStories', JSON.stringify(newViewed));
+    }
+  };
+
+  const uniqueStoryUsers = stories.reduce((acc: any[], story, index) => {
+    const isUserAlreadyAdded = acc.some(
+      (item) => item.owner?.username === story.owner?.username
+    );
+
+    if (!isUserAlreadyAdded) {
+      acc.push({ ...story, originalIndex: index });
+    }
+    return acc;
+  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white font-sans flex overflow-hidden selection:bg-purple-500 selection:text-white transition-colors duration-300 ">
@@ -157,50 +206,59 @@ fetchposts()
           </div>
           
           <nav className="space-y-2">
-            <NavItem  icon={<Home size={20} />} label="Home" active={activeTab === 'Home'} 
-              onClick={() => setActiveTab('Home')} />
-            <NavItem icon={<Compass size={20} />} label="Explore" active={activeTab === 'Explore'} 
-              onClick={() => setActiveTab('Explore')}/>
-            <NavItem icon={<PlayCircle size={20} />} label="Reels" active={activeTab === 'Reels'} 
-              onClick={() => setActiveTab('Reels')}/>
-            <NavItem icon={<LayoutGrid size={20} />} label="Categories" active={activeTab === 'Categories'} 
-              onClick={() => setActiveTab('Categories')}/>
-            <NavItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'Notifications'} 
-              onClick={() => setActiveTab('Notifications')} />
-            <NavItem icon={<User size={20} />} label="Profile" active={activeTab === 'Profile'} 
-              onClick={() => setActiveTab('Profile')}/>
-            <NavItem icon={<Settings size={20} />} label="Settings" active={activeTab === 'Settings'} 
-              onClick={() => setActiveTab('Settings')}/>
+            <NavItem icon={<Home size={20} />} label="Home" active={activeTab === 'Home'} onClick={() => setActiveTab('Home')} />
+            <NavItem icon={<Compass size={20} />} label="Explore" active={activeTab === 'Explore'} onClick={() => setActiveTab('Explore')}/>
+            <NavItem icon={<PlayCircle size={20} />} label="Reels" active={activeTab === 'Reels'} onClick={() => setActiveTab('Reels')}/>
+            <NavItem icon={<LayoutGrid size={20} />} label="Categories" active={activeTab === 'Categories'} onClick={() => setActiveTab('Categories')}/>
+            <NavItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'Notifications'} onClick={() => setActiveTab('Notifications')} />
+            <NavItem icon={<User size={20} />} label="Profile" active={activeTab === 'Profile'} onClick={() => setActiveTab('Profile')}/>
+            <NavItem icon={<Settings size={20} />} label="Settings" active={activeTab === 'Settings'} onClick={() => setActiveTab('Settings')}/>
           </nav>
         </div>
 
         <div className="flex flex-col items-center gap-4">
-        <Link href='/create' className='w-full'>
-  <button className="flex-1 w-full py-3 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-semibold shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 hover:opacity-90 transition transform active:scale-95">
-    <Plus size={20} /> Create
-  </button>
-  </Link>
+          <Link href='/create' className='w-full'>
+            <button className="flex-1 w-full py-3 rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-semibold shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 hover:opacity-90 transition transform active:scale-95">
+              <Plus size={20} /> Create
+            </button>
+          </Link>
 
-  <button 
-    onClick={() => setDarkMode(!darkMode)}
-    className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:text-purple-500 dark:hover:text-purple-400 transition-colors border border-zinc-200 dark:border-zinc-800"
-    title="Toggle Theme"
-  >
-    {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-  </button>
-</div>
-
-
+          <button 
+            onClick={() => setDarkMode(!darkMode)}
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 hover:text-purple-500 dark:hover:text-purple-400 transition-colors border border-zinc-200 dark:border-zinc-800"
+            title="Toggle Theme"
+          >
+            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+        </div>
       </aside>
+
+      {/* Main Feed */}
       <main className="flex-1 overflow-y-auto px-10 py-8 h-screen no-scrollbar">
        {activeTab === 'Home' && (
           <>
-            <div className="flex gap-6 mb-8 overflow-x-auto pb-4 no-scrollbar ">
-              <StoryItem isUser name="Your Story" />
-              <StoryItem name="anna_art" hasBorder />
-              <StoryItem name="design_daily" hasBorder />
-              <StoryItem name="music_flow" hasBorder />
-              <StoryItem name="pixel_jim" hasBorder />
+            <div className="flex gap-6 mb-8 overflow-x-auto pb-4 no-scrollbar">
+              
+              <Link href="/create">
+                <StoryItem isUser name="Your Story" />
+              </Link>
+            
+              {uniqueStoryUsers.map((story) => (
+                 <StoryItem 
+                   key={story.id}
+                   name={story.owner?.username || "User"} 
+                   hasBorder 
+                   image={story.media_url} 
+                   isViewed={viewedUsers.includes(story.owner_id)}
+                   onClick={() => handleStoryClick(story.originalIndex, story.owner_id)}
+                 />
+              ))}
+
+              {stories.length === 0 && (
+                <div className="flex items-center text-sm text-zinc-500">
+                  <span className="ml-2">No active stories</span>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 mb-8">
@@ -211,51 +269,30 @@ fetchposts()
               <Filter label="Crafts" />
             </div>
 
-<div className="space-y-6">
-  {posts.length === 0 ? (
-    <div className="text-center text-gray-500">No posts yet. Be the first to Upload one!</div>
-  ) : (
-    posts.map((post) => (
-      <PostCard key={post.id} post={post} />
-    ))
-  )}
-</div>
+            <div className="space-y-6">
+              {posts.length === 0 ? (
+                <div className="text-center text-gray-500 mt-20">
+                  <p>No posts yet.</p>
+                  <Link href="/create" className="text-purple-500 hover:underline">Be the first to upload one!</Link>
+                </div>
+              ) : (
+                posts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))
+              )}
+            </div>
           </>
         )}
 
-
-
-        {activeTab === 'Categories' &&  (
-          <Categories  />
-        )}
-
-
-        {activeTab === 'Notifications' &&(
-          <Notifications/>
-        )}
-
-         {activeTab === 'Settings' &&(
-          <Setting/>
-        )}
-        {
-          activeTab == 'Profile' && (
-            <Profile />
-          )
-        }
-        {
-          activeTab == 'Explore' && (
-            <Explore />
-          )
-        }
-        {
-          activeTab == 'Reels' && (
-            <Reels />
-          )
-        }
+        {activeTab === 'Categories' && <Categories />}
+        {activeTab === 'Notifications' && <Notifications />}
+        {activeTab === 'Settings' && <Setting />}
+        {activeTab === 'Profile' && <Profile />}
+        {activeTab === 'Explore' && <Explore />}
+        {activeTab === 'Reels' && <Reels />}
       </main>
 
       <aside className="w-80 p-8 border-l border-zinc-200 dark:border-zinc-900 hidden xl:block h-screen sticky top-0 transition-colors duration-300">
-        
         <div className="relative mb-8 group">
           <Search className="absolute left-3 top-3 text-zinc-400 dark:text-zinc-500 group-focus-within:text-purple-500 transition-colors" size={18} />
           <input 
@@ -267,7 +304,6 @@ fetchposts()
 
         <div className="bg-zinc-100 dark:bg-zinc-900/40 rounded-2xl p-5 mb-8 border border-purple-500/20 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-600 blur-[50px] opacity-20 group-hover:opacity-30 transition duration-500"></div>
-          
           <div className="flex items-center gap-2 mb-2 text-purple-400">
             <ShieldCheck size={18} />
             <span className="font-semibold text-sm">Plagiarism Shield Active</span>
@@ -281,11 +317,19 @@ fetchposts()
           <h3 className="font-semibold mb-4 text-zinc-800 dark:text-zinc-200">Trending Humans</h3>
           <div className="space-y-5">
             <TrendingUser name="Artist Name" tag="Traditional Ink" />
-            <TrendingUser name="Artist Name" tag="Traditional Ink" />
-            <TrendingUser name="Artist Name" tag="Traditional Ink" />
+            <TrendingUser name="Design Daily" tag="Digital Art" />
+            <TrendingUser name="Pixel Jim" tag="Voxel Art" />
           </div>
         </div>
       </aside>
+
+      {selectedStoryIndex !== null && stories.length > 0 && (
+        <StoryViewer 
+          stories={stories} 
+          initialIndex={selectedStoryIndex} 
+          onClose={() => setSelectedStoryIndex(null)} 
+        />
+      )}
 
     </div>
   );
