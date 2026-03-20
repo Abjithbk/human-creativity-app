@@ -3,9 +3,17 @@ import React, { useEffect, useState } from "react";
 import { Camera, Shield, Share2, User } from "lucide-react";
 import api from "@/app/lib/axios";
 interface UserProfile {
+  id: number;
   username: string;
-  creations: number;
-  post:[]
+  email: string;
+  is_verified: boolean;
+  bio?: string;
+  profile_pic?: string;
+  role: string;
+  created_at: string;
+  posts: any[];
+  followers: any[];
+  following: any[];
 }
 
 
@@ -97,9 +105,9 @@ const Profile: React.FC = () => {
 
           {/* Stats Section */}
           <div className="flex items-center justify-center gap-12 w-full mb-8 py-4 border-y border-gray-200 dark:border-gray-800 bg-gray-50/40 dark:bg-transparent">
-            <StatItem value={userProfile?.post?.length ?? 0} label="Creations" />
-            <StatItem value="90" label="Followers" />
-            <StatItem value="70" label="Following" />
+            <StatItem value={userProfile?.posts?.length ?? 0} label="Creations" />
+            <StatItem value={userProfile?.followers?.length ?? 0} label="Followers" />
+            <StatItem value={userProfile?.following?.length ?? 0} label="Following" />
           </div>
 
           {/* Buttons */}
