@@ -99,7 +99,12 @@ const TrendingUser = ({ name, tag }: TrendingUser) => (
 );
 
 export default function Dashboard() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) return savedTheme === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const [activeTab, setActiveTab] = useState('Home');
   const [posts, setPosts] = useState<any[]>([]);
   const [stories, setStories] = useState<any[]>([]);
@@ -129,8 +134,13 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if (darkMode) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
   }, [darkMode]);
 
   useEffect(() => {

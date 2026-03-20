@@ -43,7 +43,9 @@ const Login = () => {
           style: { background: '#333', color: '#fff' },
         });
         
-        router.push('/Home'); 
+        setTimeout(() => {
+          router.push('/Home');
+        }, 1500); 
 
       } catch (err: any) {
         toast.dismiss(loadingToast);

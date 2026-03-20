@@ -13,21 +13,21 @@ export default function CreatePost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) return savedTheme === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const [postType, setPostType] = useState<"post" | "story">("post");
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(isSystemDark);
-    } 
-  },[]);
 
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   },[darkMode]);
 
