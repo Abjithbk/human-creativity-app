@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Home, Compass, PlayCircle, LayoutGrid, Bell, User, Settings, Search, Plus, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { Home, Compass, PlayCircle, LayoutGrid, Bell, User, Settings, Search, Plus, ShieldCheck, Sun, Moon, MessageSquare, Users } from 'lucide-react';
 import Categories from '../components/categories/page';
 import Notifications from '../components/notifications/page';
 import Setting from '../components/settings/page';
@@ -9,6 +9,8 @@ import Explore from '../components/explore/page';
 import Reels from '../components/reels/page';
 import PostCard from '../components/postcard/page';
 import StoryViewer from '../components/stories/page'; 
+import Messages from '../components/messages/page';
+import Followers from '../components/followers/page';
 import axios from 'axios';
 import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
@@ -238,6 +240,8 @@ export default function Dashboard() {
             <NavItem icon={<LayoutGrid size={20} />} label="Categories" active={activeTab === 'Categories'} onClick={() => setActiveTab('Categories')}/>
             <NavItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'Notifications'} onClick={() => setActiveTab('Notifications')} />
             <NavItem icon={<User size={20} />} label="Profile" active={activeTab === 'Profile'} onClick={() => setActiveTab('Profile')}/>
+            <NavItem icon={<MessageSquare size={20} />} label="Messages" active={activeTab === 'Messages'} onClick={() => setActiveTab('Messages')}/>
+            <NavItem icon={<Users size={20} />} label="People" active={activeTab === 'People'} onClick={() => setActiveTab('People')}/>
             <NavItem icon={<Settings size={20} />} label="Settings" active={activeTab === 'Settings'} onClick={() => setActiveTab('Settings')}/>
           </nav>
         </div>
@@ -318,6 +322,8 @@ export default function Dashboard() {
        {activeTab === 'Profile' && <Profile />}
        {activeTab === 'Explore' && <Explore />}
        {activeTab === 'Reels' && <Reels />}
+       {activeTab === 'Messages' && <Messages />}
+       {activeTab === 'People' && <Followers />}
       </main>
 
       <aside className="w-80 p-8 border-l border-zinc-200 dark:border-zinc-900 hidden xl:block h-screen sticky top-0 transition-colors duration-300">
