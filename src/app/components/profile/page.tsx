@@ -83,8 +83,7 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await api.get("/profile/", { headers: { Authorization: `Bearer ${token}` } });
+        const res = await api.get("/profile/");
         setUserProfile(res.data);
       } catch (error: any) {
         console.log(error.response?.data);
