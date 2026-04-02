@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, ShieldCheck, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, ShieldCheck, Trash2, Send } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -15,6 +15,12 @@ export default function PostCard({ post, currentUserId, onDeletePost }: PostCard
   const [saved, setSaved] = useState(false);
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 100)); 
   const [showMenu, setShowMenu] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [comments, setComments] = useState<{id: number, username: string, text: string}[]>([
+    { id: 1, username: 'art_lover88', text: 'Stunning piece! The colors are incredible.' },
+    { id: 2, username: 'digital.creator', text: 'This gives me so much inspiration for my next project. 😍' }
+  ]);
 
   const isVideo = post.media_type === 'video' || 
                   post.media_url?.includes('.mp4') || 
@@ -151,12 +157,21 @@ export default function PostCard({ post, currentUserId, onDeletePost }: PostCard
                 <span className="text-sm font-semibold">{likeCount}</span>
             </button>
         
-            <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors group">
+            <button 
+              onClick={() => setShowComments(!showComments)}
+              className={`flex items-center gap-2 transition-colors group ${showComments ? 'text-blue-500' : 'text-zinc-500 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400'}`}
+            >
                 <MessageCircle size={24} className="group-hover:fill-current transition-all" />
-                <span className="text-sm font-semibold">0</span>
+                <span className="text-sm font-semibold">{comments.length}</span>
             </button>
 
-            <button className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+                toast.success('Link copied to clipboard!');
+              }}
+              className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+            >
                 <Share2 size={24} />
             </button>
         </div>
@@ -169,7 +184,64 @@ export default function PostCard({ post, currentUserId, onDeletePost }: PostCard
         </button>
       </div>
 
-      <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300">{post.content}</p>
+      <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">{post.content}</p>
+
+      {/* Comments Section */}
+      {showComments && (
+        <div className="mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-800 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="max-h-56 overflow-y-auto pr-2 space-y-4 mb-4 no-scrollbar">
+            {comments.length === 0 ? (
+              <p className="text-sm text-zinc-400 dark:text-zinc-500 text-center py-4 font-medium">No comments yet. Start the conversation!</p>
+            ) : (
+              comments.map((comment) => (
+                <div key={comment.id} className="flex gap-3 group/comment">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-600 p-[2px] shrink-0">
+                    <div className="w-full h-full rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-zinc-800 dark:text-white uppercase">
+                        {comment.username.charAt(0)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl rounded-tl-none px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">{comment.username}</span>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-0.5">{comment.text}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <div className="flex-1 relative group">
+              <input 
+                type="text" 
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newComment.trim()) {
+                    setComments([...comments, { id: Date.now(), username: 'You', text: newComment.trim() }]);
+                    setNewComment('');
+                  }
+                }}
+                placeholder="Add a comment..."
+                className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-full py-2.5 pl-4 pr-12 text-sm text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all placeholder:text-zinc-500"
+              />
+              <button 
+                onClick={() => {
+                  if (newComment.trim()) {
+                    setComments([...comments, { id: Date.now(), username: 'You', text: newComment.trim() }]);
+                    setNewComment('');
+                  }
+                }}
+                disabled={!newComment.trim()}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full text-white bg-purple-500 hover:bg-purple-600 disabled:opacity-0 disabled:scale-75 transition-all duration-300"
+              >
+                <Send size={14} className="ml-[-1px]" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
