@@ -4,26 +4,8 @@ import { X, Heart, Share2, MoreHorizontal, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns"; 
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { Story,StoryViewerProps } from "@/app/types/story";
 
-interface Story {
-  id: number;
-  media_url: string;
-  media_type: "image" | "video";
-  created_at: string;
-  owner_id: number;
-  owner?: {
-    username: string;
-    profile_pic?: string; 
-  };
-}
-
-interface StoryViewerProps {
-  stories: Story[];
-  onClose: () => void;
-  onGroupComplete: () => void; 
-  currentUserId: number | null;
-  onDeleteStory: (id: number) => void;
-}
 
 export default function StoryViewer({ stories, onClose, onGroupComplete, currentUserId, onDeleteStory }: StoryViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(0); 

@@ -3,12 +3,8 @@ import React, { useState } from 'react';
 import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, ShieldCheck, Trash2, Send } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { PostCardProps } from '@/app/types/posts';
 
-interface PostCardProps {
-  post: any;
-  currentUserId: number | null;
-  onDeletePost: (id: number) => void;
-}
 
 export default function PostCard({ post, currentUserId, onDeletePost }: PostCardProps) {
   const [liked, setLiked] = useState(false);

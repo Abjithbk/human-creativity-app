@@ -2,17 +2,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, UserCheck, UserPlus, Users, UserMinus } from 'lucide-react';
 import api from '@/app/lib/axios';
+import { FollowUser,Tab } from '@/app/types/user';
 
-// ─── Types ─────────────────────────────────────────────────────────────────
-
-interface FollowUser {
-  id: number;
-  username: string;
-  followers_count: number;
-  is_following: boolean;
-}
-
-type Tab = 'Followers' | 'Following' | 'Search';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
