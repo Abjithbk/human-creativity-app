@@ -77,9 +77,7 @@ function decodeUserId(): number | null {
   }
 }
 
-function authHeader() {
-  return { Authorization: `Bearer ${getToken()}` };
-}
+
 
 function dmPartner(convo: Conversation, myId: number): Participant | null {
   if (convo.type !== 'direct') return null;
@@ -293,9 +291,7 @@ function NewDMModal({
     if (!q.trim()) { setResults([]); return; }
     setLoading(true);
     try {
-      const res = await api.get(`/follow/search?query=${encodeURIComponent(q)}`, {
-        headers: authHeader(),
-      });
+      const res = await api.get(`/follow/search?query=${encodeURIComponent(q)}`);
       setResults(res.data);
     } catch {
       setResults([]);
@@ -411,7 +407,7 @@ export default function Messages() {
   const loadConversations = useCallback(async () => {
     setConvoLoading(true);
     try {
-      const res = await api.get('/chat/', { headers: authHeader() });
+      const res = await api.get('/chat/');
       setConvos(res.data as Conversation[]);
     } catch (e) {
       console.error('Failed to load conversations', e);
@@ -429,9 +425,7 @@ export default function Messages() {
     try {
       const params = new URLSearchParams({ limit: '50' });
       if (beforeId) params.set('before_id', String(beforeId));
-      const res = await api.get(`/chat/${convoId}/messages?${params}`, {
-        headers: authHeader(),
-      });
+      const res = await api.get(`/chat/${convoId}/messages?${params}`);
       const fetched: Message[] = res.data;
       if (beforeId) {
         setMessages(prev => [...fetched, ...prev]);
@@ -453,7 +447,7 @@ export default function Messages() {
   // Mark read
   const markRead = useCallback(async (convoId: number) => {
     try {
-      await api.post(`/chat/${convoId}/read`, {}, { headers: authHeader() });
+      await api.post(`/chat/${convoId}/read`, {});
       setConvos(prev =>
         prev.map(c => c.id === convoId ? { ...c, unread_count: 0 } : c)
       );
@@ -604,8 +598,7 @@ export default function Messages() {
       try {
         await api.patch(
           `/chat/messages/${editMsg.id}`,
-          { content: text },
-          { headers: authHeader() }
+          { content: text }
         );
         // WS will broadcast message_edited — but also update locally for instant feedback
         setMessages(prev =>
@@ -653,7 +646,7 @@ export default function Messages() {
 
   const deleteMessage = useCallback(async (msgId: number) => {
     try {
-      await api.delete(`/chat/messages/${msgId}`, { headers: authHeader() });
+      await api.delete(`/chat/messages/${msgId}`);
       // WS broadcasts message_deleted
     } catch (e) {
       console.error('Delete failed', e);
@@ -666,8 +659,7 @@ export default function Messages() {
     try {
       const res = await api.post(
         '/chat/',
-        { type: 'direct', participant_ids: [userId] },
-        { headers: authHeader() }
+        { type: 'direct', participant_ids: [userId] }
       );
       const convo: Conversation = res.data;
       await loadConversations();
