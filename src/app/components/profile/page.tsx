@@ -5,30 +5,9 @@ import {
   MapPin, Link, Heart, Eye, Bookmark, MoreHorizontal, Edit3, ChevronRight,
 } from "lucide-react";
 import api from "@/app/lib/axios";
+import { Tab } from "@/app/types/posts";
+import { UserProfile,Post } from "@/app/types/messages";
 
-interface UserProfile {
-  id: number;
-  username: string;
-  email: string;
-  is_verified: boolean;
-  bio?: string;
-  profile_pic?: string;
-  role: string;
-  created_at: string;
-  posts: any[];
-  followers: any[];
-  following: any[];
-  creations: number;
-  post: Post[];
-}
-interface Post {
-  id?: string | number;
-  image?: string;
-  title?: string;
-  likes?: number;
-  views?: number;
-}
-type Tab = "Creations" | "About";
 
 /* ── Animated Counter ───────────────────────────────────────── */
 const AnimatedCounter: React.FC<{ target: number; duration?: number }> = ({ target, duration = 1200 }) => {

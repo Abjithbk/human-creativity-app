@@ -14,22 +14,8 @@ import Followers from '../components/followers/page';
 import axios from 'axios';
 import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
+import { NavItems,StoryItems,Filters,TrendingUsers } from '../types/ui';
 
-interface NavItems {
-  icon: React.ReactNode;
-  label: string;
-  active?: boolean;
-  onClick?: () => void
-}
-
-interface StoryItems {
-  isUser?: boolean;
-  name: string;
-  hasBorder?: boolean;
-  isViewed?: boolean; 
-  image?: string; 
-  onClick?: () => void;
-}
 
 const NavItem = ({ icon, label, active, onClick }: NavItems) => (
   <div onClick={onClick} className={`flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group 
@@ -91,12 +77,11 @@ const StoryItem = ({ isUser, name, hasBorder, isViewed, image, onClick }: StoryI
   );
 };
 
-interface Filters { label: string; active?: boolean; }
 const Filter = ({ label, active }: Filters) => (
   <button className={`px-6 py-1.5 rounded-full text-sm font-medium transition-all duration-300 transform hover:-translate-y-0.5 ${active ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/25 border-transparent' : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600'}`}>{label}</button>
 );
-interface TrendingUser { name: string; tag: string; }
-const TrendingUser = ({ name, tag }: TrendingUser) => (
+
+const TrendingUser = ({ name, tag }: TrendingUsers) => (
   <div className="flex items-center justify-between group cursor-pointer"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 ring-2 ring-white dark:ring-black group-hover:ring-zinc-200 dark:group-hover:ring-zinc-700 transition-all" /><div><h4 className="text-sm font-semibold text-zinc-800 dark:text-white group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors">{name}</h4><p className="text-xs text-zinc-500">{tag}</p></div></div><button className="text-xs font-bold text-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-colors opacity-0 group-hover:opacity-100">Follow</button></div>
 );
 
