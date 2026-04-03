@@ -21,10 +21,6 @@ function getToken(): string {
   return localStorage.getItem('token') ?? '';
 }
 
-function authHeader() {
-  return { Authorization: `Bearer ${getToken()}` };
-}
-
 // ─── Avatar ────────────────────────────────────────────────────────────────
 
 function UserAvatar({ username, size = 11 }: { username: string; size?: number }) {
@@ -158,7 +154,7 @@ export default function Followers() {
   const fetchFollowers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get('/follow/my/followers', { headers: authHeader() });
+      const res = await api.get('/follow/my/followers');
       setFollowers(res.data as FollowUser[]);
     } catch (e) {
       console.error('Failed to load followers', e);
@@ -170,7 +166,7 @@ export default function Followers() {
   const fetchFollowing = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.get('/follow/my/following', { headers: authHeader() });
+      const res = await api.get('/follow/my/following');
       setFollowing(res.data as FollowUser[]);
     } catch (e) {
       console.error('Failed to load following', e);
@@ -190,9 +186,7 @@ export default function Followers() {
     if (!q.trim()) { setSearchResults([]); return; }
     setSearchLoading(true);
     try {
-      const res = await api.get(`/follow/search?query=${encodeURIComponent(q)}`, {
-        headers: authHeader(),
-      });
+      const res = await api.get(`/follow/search?query=${encodeURIComponent(q)}`);
       setSearchResults(res.data as FollowUser[]);
     } catch (e) {
       console.error('Search failed', e);
@@ -212,17 +206,16 @@ export default function Followers() {
   // ── Follow / Unfollow ─────────────────────────────────────────────────
 
   const handleFollowToggle = useCallback(async (userId: number, isFollowing: boolean) => {
-    const headers = authHeader();
     if (isFollowing) {
-      await api.delete(`/follow/unfollow/${userId}`, { headers });
+      await api.delete(`/follow/unfollow/${userId}`);
     } else {
-      await api.post(`/follow/follow/${userId}`, {}, { headers });
+      await api.post(`/follow/follow/${userId}`, {});
     }
 
     // Refresh both lists to keep in sync
     const [fwRes, fgRes] = await Promise.all([
-      api.get('/follow/my/followers', { headers }),
-      api.get('/follow/my/following', { headers }),
+      api.get('/follow/my/followers'),
+      api.get('/follow/my/following'),
     ]);
     setFollowers(fwRes.data);
     setFollowing(fgRes.data);
@@ -230,8 +223,7 @@ export default function Followers() {
     // Also update search results if we're on search tab
     if (searchQuery.trim()) {
       const srRes = await api.get(
-        `/follow/search?query=${encodeURIComponent(searchQuery)}`,
-        { headers }
+        `/follow/search?query=${encodeURIComponent(searchQuery)}`
       );
       setSearchResults(srRes.data);
     }
