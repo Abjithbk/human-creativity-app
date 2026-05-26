@@ -8,56 +8,8 @@ import {
 } from 'lucide-react';
 import api from '@/app/lib/axios';
 import { formatDistanceToNow } from 'date-fns';
+import { Sender,Message,Participant,Conversation,SearchUser } from '@/app/types/messages';
 
-// ─── Types ─────────────────────────────────────────────────────────────────
-
-interface Sender {
-  username: string;
-  profile_pic: string | null;
-}
-
-interface Message {
-  id: number;
-  conversation_id: number;
-  sender_id: number;
-  sender_username: string;
-  sender_profile_pic: string | null;
-  content: string | null;
-  message_type: 'text' | 'image' | 'video' | 'document' | 'system';
-  media_url: string | null;
-  media_filename: string | null;
-  reply_to_id: number | null;
-  reply_to: Message | null;
-  created_at: string;
-  edited_at: string | null;
-  is_deleted: boolean;
-  sender?: Sender;
-}
-
-interface Participant {
-  user_id: number;
-  role: string;
-  is_active: boolean;
-  user: Sender | null;
-}
-
-interface Conversation {
-  id: number;
-  type: 'direct' | 'group';
-  name: string | null;
-  group_pic: string | null;
-  updated_at: string | null;
-  last_message: Message | null;
-  unread_count: number;
-  participants: Participant[];
-}
-
-interface SearchUser {
-  id: number;
-  username: string;
-  followers_count: number;
-  is_following: boolean;
-}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 

@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, UserPlus, ShieldCheck } from 'lucide-react';
-
-interface NotificationItem {
-  id: number;
-  type: 'like' | 'follow' | 'system';
-  user: string;
-  message: string;
-  time: string;
-  unread: boolean;
-}
+import { NotificationItem } from '@/app/types/messages';
 
 const notifications: NotificationItem[] = [
   {

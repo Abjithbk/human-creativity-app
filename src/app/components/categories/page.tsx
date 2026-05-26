@@ -1,11 +1,5 @@
 import React from 'react';
-
-interface CategoryItem {
-  id: number;
-  title: string;
-  count: string;
-  gradient: string;
-}
+import { CategoryItem } from '@/app/types/ui';
 
 const categories: CategoryItem[] = [
   {
